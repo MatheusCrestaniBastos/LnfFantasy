@@ -1,0 +1,381 @@
+/* ============================================
+   LNF FANTASY - ESTILOS CUSTOMIZADOS
+   ============================================ */
+
+/* Cores da LNF */
+:root {
+    /* Cores principais LNF */
+    --lnf-orange: #FF6B00;
+    --lnf-orange-dark: #E55F00;
+    --lnf-blue: #003366;
+    --lnf-blue-dark: #002244;
+    
+    /* Cores secundárias */
+    --primary-green: #10b981;
+    --primary-green-dark: #059669;
+    --primary-red: #ef4444;
+    --primary-yellow: #f59e0b;
+    
+    /* Cores de fundo */
+    --bg-light: #f9fafb;
+    --bg-dark: #111827;
+    --card-light: #ffffff;
+    --card-dark: #1f2937;
+    
+    /* Texto */
+    --text-light: #111827;
+    --text-dark: #f9fafb;
+    --text-muted-light: #6b7280;
+    --text-muted-dark: #9ca3af;
+    
+    /* Bordas */
+    --border-light: #e5e7eb;
+    --border-dark: #374151;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    
+    /* Transições */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Raios de borda */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   COMPONENTES REUTILIZÁVEIS
+   ============================================ */
+
+/* Botões com cores LNF */
+.btn-primary-lnf {
+    background: linear-gradient(135deg, var(--lnf-orange) 0%, var(--lnf-orange-dark) 100%);
+    color: white;
+}
+
+.btn-primary-lnf:hover {
+    background: linear-gradient(135deg, var(--lnf-orange-dark) 0%, #CC5500 100%);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary-lnf {
+    background: linear-gradient(135deg, var(--lnf-blue) 0%, var(--lnf-blue-dark) 100%);
+    color: white;
+}
+
+.btn-secondary-lnf:hover {
+    background: linear-gradient(135deg, var(--lnf-blue-dark) 0%, #001122 100%);
+}
+
+/* Cards com tema LNF */
+.card-lnf {
+    background: var(--card-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 2px solid rgba(255, 107, 0, 0.1);
+    transition: all var(--transition-normal);
+}
+
+.dark .card-lnf {
+    background: var(--card-dark);
+    border-color: rgba(255, 107, 0, 0.2);
+}
+
+.card-lnf:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--lnf-orange);
+}
+
+/* Badges */
+.badge-lnf-orange {
+    background-color: rgba(255, 107, 0, 0.1);
+    color: var(--lnf-orange-dark);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.dark .badge-lnf-orange {
+    background-color: rgba(255, 107, 0, 0.2);
+    color: var(--lnf-orange);
+}
+
+.badge-lnf-blue {
+    background-color: rgba(0, 51, 102, 0.1);
+    color: var(--lnf-blue-dark);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.dark .badge-lnf-blue {
+    background-color: rgba(0, 51, 102, 0.2);
+    color: #5588BB;
+}
+
+/* ============================================
+   ANIMAÇÕES
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.fade-in {
+    animation: fadeIn var(--transition-normal) ease-out;
+}
+
+.slide-in {
+    animation: slideIn var(--transition-normal) ease-out;
+}
+
+/* ============================================
+   COMPONENTES ESPECÍFICOS LNF
+   ============================================ */
+
+/* Header com gradiente LNF */
+.navbar-lnf {
+    background: linear-gradient(135deg, var(--lnf-orange) 0%, var(--lnf-blue) 100%);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+/* Cards de estatísticas com tema LNF */
+.stat-card-lnf {
+    background: linear-gradient(135deg, var(--lnf-orange) 0%, var(--lnf-orange-dark) 100%);
+    color: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-lg);
+    transition: transform var(--transition-normal);
+}
+
+.stat-card-lnf:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+
+.stat-card-lnf-blue {
+    background: linear-gradient(135deg, var(--lnf-blue) 0%, var(--lnf-blue-dark) 100%);
+}
+
+/* Tabela de ranking LNF */
+.ranking-table-lnf thead {
+    background: linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(0, 51, 102, 0.1) 100%);
+}
+
+.ranking-table-lnf tbody tr.current-user {
+    background: rgba(255, 107, 0, 0.1);
+    font-weight: 600;
+    border-left: 4px solid var(--lnf-orange);
+}
+
+.dark .ranking-table-lnf tbody tr.current-user {
+    background: rgba(255, 107, 0, 0.2);
+}
+
+/* Cards de jogadores LNF */
+.player-card-lnf {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+    border: 2px solid transparent;
+}
+
+.dark .player-card-lnf {
+    background: var(--card-dark);
+}
+
+.player-card-lnf:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--lnf-orange);
+}
+
+.player-card-lnf-selected {
+    border-color: var(--primary-green);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.dark .player-card-lnf-selected {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+/* Campo de futsal com tema LNF */
+.field-container-lnf {
+    background: linear-gradient(135deg, var(--lnf-blue) 0%, #1e3c72 50%, var(--lnf-blue) 100%);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    min-height: 400px;
+    position: relative;
+    border: 3px solid var(--lnf-orange);
+}
+
+/* Notificações LNF */
+.notification-lnf {
+    border-left: 4px solid var(--lnf-orange);
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.5rem;
+    box-shadow: var(--shadow-xl);
+}
+
+.dark .notification-lnf {
+    background: var(--card-dark);
+}
+
+/* Texto com gradiente LNF */
+.text-gradient-lnf {
+    background: linear-gradient(135deg, var(--lnf-orange) 0%, var(--lnf-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================
+   RESPONSIVIDADE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .card-lnf {
+        padding: 1rem;
+    }
+    
+    .field-container-lnf {
+        padding: 1rem;
+        min-height: 300px;
+    }
+    
+    .stat-card-lnf {
+        padding: 1rem;
+    }
+}
+
+/* ============================================
+   UTILIDADES LNF
+   ============================================ */
+
+.shadow-glow-lnf {
+    box-shadow: 0 0 20px rgba(255, 107, 0, 0.3);
+}
+
+.hover-lift-lnf {
+    transition: transform var(--transition-normal);
+}
+
+.hover-lift-lnf:hover {
+    transform: translateY(-4px);
+}
+
+/* Scrollbar customizada com cores LNF */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-light);
+}
+
+.dark ::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--lnf-orange);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--lnf-orange-dark);
+}
+
+/* ============================================
+   IMPRESSÃO
+   ============================================ */
+
+@media print {
+    .navbar-lnf,
+    .btn,
+    button,
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .card-lnf {
+        box-shadow: none;
+        border: 1px solid #e5e7eb;
+    }
+}

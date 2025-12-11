@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FF6B00">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="description" content="Fantasy Game oficial da Liga Nacional de Futsal">
+    <title>LNF Fantasy - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/mobile.css">
+    <script>
+        tailwind.config = { 
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        lnf: {
+                            orange: '#FF6B00',
+                            blue: '#003366',
+                            dark: '#001a33'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-lnf-blue via-lnf-dark to-black min-h-screen flex items-center justify-center">
+    
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <div class="text-center mb-8">
+            <div class="inline-block p-4 bg-gradient-to-br from-lnf-orange to-red-600 rounded-full mb-4">
+                <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-12.5c-2.49 0-4.5 2.01-4.5 4.5s2.01 4.5 4.5 4.5 4.5-2.01 4.5-4.5-2.01-4.5-4.5-4.5z"/>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-lnf-orange to-red-600 mb-2">
+                LNF Fantasy
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 font-semibold">Liga Nacional de Futsal</p>
+            <p class="text-sm text-gray-500 dark:text-gray-500 mt-1">Escale seu time dos sonhos</p>
+        </div>
+
+        <!-- Tabs de alternância -->
+        <div class="flex mb-6 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <button id="btn-login" onclick="mostrarLogin()" 
+                    class="flex-1 py-2 rounded-md bg-white dark:bg-gray-800 shadow-sm font-semibold text-lnf-orange transition-all">
+                Login
+            </button>
+            <button id="btn-cadastro" onclick="mostrarCadastro()" 
+                    class="flex-1 py-2 rounded-md font-semibold text-gray-600 dark:text-gray-400 transition-all">
+                Cadastro
+            </button>
+        </div>
+
+        <!-- Formulário de Login -->
+        <form id="form-login" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                <input type="email" id="login-email" required
+                    class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-lnf-orange focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                    placeholder="seu@email.com">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Senha</label>
+                <input type="password" id="login-senha" required
+                    class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-lnf-orange focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                    placeholder="••••••••">
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-gradient-to-r from-lnf-orange to-red-600 hover:from-red-600 hover:to-lnf-orange text-white font-bold py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg">
+                🚀 Entrar
+            </button>
+        </form>
+
+        <!-- Formulário de Cadastro -->
+        <form id="form-cadastro" class="space-y-4 hidden">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome do Time</label>
+                <input type="text" id="cadastro-time" required
+                    class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-lnf-orange focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                    placeholder="Ex: Pato Mania">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                <input type="email" id="cadastro-email" required
+                    class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-lnf-orange focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                    placeholder="seu@email.com">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Senha</label>
+                <input type="password" id="cadastro-senha" required
+                    class="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-lnf-orange focus:border-transparent dark:bg-gray-700 dark:text-white transition-all"
+                    placeholder="••••••••" minlength="6">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Mínimo 6 caracteres</p>
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-emerald-600 hover:to-green-500 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg">
+                ⚽ Criar Conta
+            </button>
+        </form>
+
+        <!-- Container de mensagens -->
+        <div id="mensagem-auth" class="mt-4 hidden"></div>
+        
+        <!-- Info -->
+        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div class="text-center space-y-2">
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    🏆 Monte seu time com jogadores da LNF
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    💰 Orçamento: C$ 100,00 • 👥 5 jogadores
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="fixed bottom-4 left-0 right-0 text-center">
+        <p class="text-xs text-white/70">
+            LNF Fantasy • Liga Nacional de Futsal • 2025
+        </p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
+</body>
+</html>
