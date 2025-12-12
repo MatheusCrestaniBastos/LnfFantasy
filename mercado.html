@@ -2,125 +2,135 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF6B00">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Mercado - LNF Fantasy</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = { 
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        'lnf-orange': '#FF6B00',
-                        'lnf-orange-dark': '#E55F00',
-                        'lnf-blue': '#003366',
-                        'lnf-blue-dark': '#002244'
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-        .animate-float { animation: float 3s ease-in-out infinite; }
-        .animate-slide-in-left { animation: slideInLeft 0.6s ease-out forwards; }
-        .animate-slide-in-right { animation: slideInRight 0.6s ease-out forwards; }
-        .animate-slide-in-up { animation: slideInUp 0.6s ease-out forwards; }
-        
-        .player-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .player-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        
-        .field-bg {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);
+        .field-3d {
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #1a472a 100%);
             position: relative;
+            border-radius: 16px;
             overflow: hidden;
         }
         
-        .field-bg::before {
+        .field-lines::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(255, 255, 255, 0.03) 50px, rgba(255, 255, 255, 0.03) 100px);
-            pointer-events: none;
+            inset: 0;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent 0px, transparent 49px, rgba(255,255,255,0.15) 49px, rgba(255,255,255,0.15) 50px),
+                repeating-linear-gradient(90deg, transparent 0px, transparent 49px, rgba(255,255,255,0.15) 49px, rgba(255,255,255,0.15) 50px);
         }
         
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .player-slot {
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-
-        .mobile-menu { transform: translateX(-100%); transition: transform 0.3s ease-in-out; }
-        .mobile-menu.open { transform: translateX(0); }
-        .mobile-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; }
-        .mobile-overlay.open { opacity: 1; pointer-events: auto; }
-        .mobile-filters { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out; }
-        .mobile-filters.open { max-height: 500px; }
+        
+        .player-slot:hover {
+            transform: scale(1.1) translateY(-5px);
+            z-index: 10;
+        }
+        
+        .player-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .player-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .position-badge {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FF6B00;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 2px solid white;
+        }
+        
+        .valorization-up {
+            color: #10b981;
+        }
+        
+        .valorization-down {
+            color: #ef4444;
+        }
+        
+        .player-row:hover {
+            background: rgba(255, 107, 0, 0.05);
+        }
+        
+        .status-badge {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-provavel { background: #10b981; }
+        .status-duvida { background: #f59e0b; }
+        .status-contundido { background: #ef4444; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black min-h-screen">
+<body class="bg-gray-50 dark:bg-gray-900">
     
     <!-- Header -->
-    <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-xl border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center gap-3 md:gap-4">
-                    <div class="flex items-center gap-2 md:gap-3">
-                        <div class="text-3xl md:text-4xl animate-float">🛒</div>
-                        <div>
-                            <h1 class="text-lg md:text-2xl font-bold bg-gradient-to-r from-orange-600 to-blue-600 dark:from-orange-400 dark:to-blue-400 bg-clip-text text-transparent">
-                                Mercado LNF
-                            </h1>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Monte seu time</p>
+    <header class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div class="max-w-[1600px] mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent">
+                        ⚽ LNF Fantasy
+                    </h1>
+                    <div class="hidden md:flex items-center gap-6 text-sm">
+                        <a href="dashboard.html" class="text-gray-600 dark:text-gray-300 hover:text-orange-600">Início</a>
+                        <a href="mercado.html" class="text-orange-600 font-bold border-b-2 border-orange-600 pb-1">Mercado</a>
+                        <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-orange-600">Escalação</a>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:block text-right">
+                        <div class="text-xs text-gray-500 dark:text-gray-400">Preço do Time</div>
+                        <div id="preco-time" class="text-2xl font-bold text-gray-900 dark:text-white">
+                            C$ 0.00
                         </div>
                     </div>
-                    <span id="status-mercado" class="hidden md:inline-flex px-3 md:px-4 py-1 md:py-2 rounded-full text-xs font-bold text-white shadow-lg bg-green-500">
-                        ✅ Aberto
-                    </span>
-                </div>
-
-                <!-- Desktop Navigation -->
-                <nav class="hidden md:flex items-center space-x-3">
-                    <a href="dashboard.html" class="inline-flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                        </svg>
-                        Dashboard
-                    </a>
-                    <a href="mercado.html" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                        </svg>
-                        Mercado
-                    </a>
-                    <button id="theme-toggle" class="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all transform hover:scale-110 shadow-md">
-                        <span class="dark:hidden text-xl">🌙</span>
-                        <span class="hidden dark:inline text-xl">☀️</span>
+                    <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <span class="dark:hidden">🌙</span>
+                        <span class="hidden dark:inline">☀️</span>
                     </button>
-                    <button onclick="logout()" class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-all transform hover:scale-110 shadow-md" title="Sair">
+                    <button onclick="logout()" class="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
-                    </button>
-                </nav>
-
-                <!-- Mobile Menu Button -->
-                <div class="flex md:hidden items-center gap-2">
-                    <button id="theme-toggle-mobile" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
-                        <span class="dark:hidden text-lg">🌙</span>
-                        <span class="hidden dark:inline text-lg">☀️</span>
-                    </button>
-                    <button id="mobile-menu-button" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
-                        <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
                     </button>
                 </div>
@@ -128,378 +138,281 @@
         </div>
     </header>
 
-    <!-- Mobile Menu Sidebar -->
-    <div id="mobile-overlay" class="mobile-overlay fixed inset-0 bg-black/50 z-40 md:hidden">
-        <div id="mobile-menu" class="mobile-menu fixed top-0 left-0 bottom-0 w-80 max-w-[85%] bg-white dark:bg-gray-800 shadow-2xl z-50 overflow-y-auto">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-8">
-                    <div class="flex items-center gap-3">
-                        <div class="text-3xl">🛒</div>
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Menu</h2>
-                    </div>
-                    <button id="close-mobile-menu" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
-                        <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="mb-6 p-4 bg-gradient-to-r from-orange-50 to-blue-50 dark:from-gray-700 dark:to-gray-800 rounded-xl">
-                    <div class="text-center">
-                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">Saldo Disponível</p>
-                        <p id="saldo-atual-mobile" class="text-2xl font-bold text-green-600 dark:text-green-400">C$ 100,00</p>
-                    </div>
-                </div>
-
-                <nav class="space-y-2">
-                    <a href="dashboard.html" class="flex items-center gap-3 p-4 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                        </svg>
-                        <span class="font-semibold">Dashboard</span>
-                    </a>
-
-                    <a href="mercado.html" class="flex items-center gap-3 p-4 rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                        </svg>
-                        <span class="font-semibold">Mercado</span>
-                    </a>
-
-                    <div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
-
-                    <button onclick="logout()" class="w-full flex items-center gap-3 p-4 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
-                        <span class="font-semibold">Sair da Conta</span>
-                    </button>
-                </nav>
-            </div>
-        </div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-8">
+    <div class="max-w-[1600px] mx-auto px-4 py-6">
+        <div class="grid grid-cols-12 gap-6">
             
-            <!-- Coluna Principal - Jogadores -->
-            <div class="xl:col-span-2 space-y-4 md:space-y-6">
-                
-                <!-- Filtros -->
-                <div class="animate-slide-in-left bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 md:p-6 border-2 border-orange-200 dark:border-orange-900">
-                    <button id="toggle-filters-mobile" class="md:hidden w-full flex items-center justify-between mb-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xl">🔍</span>
-                            <span class="font-semibold text-gray-900 dark:text-white">Filtros</span>
-                        </div>
-                        <svg id="filters-arrow" class="w-5 h-5 text-gray-600 dark:text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
+            <!-- COLUNA ESQUERDA: SEU TIME -->
+            <div class="col-span-12 lg:col-span-3">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sticky top-24">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            SEU TIME
+                        </h3>
+                        <button onclick="toggleView()" class="text-xs text-gray-500 hover:text-orange-600">
+                            <svg id="view-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                            </svg>
+                        </button>
+                    </div>
 
-                    <div id="filters-content" class="mobile-filters md:!max-h-none">
-                        <div class="hidden md:flex items-center gap-3 mb-6">
-                            <div class="text-2xl md:text-3xl">🔍</div>
-                            <div>
-                                <h2 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white">Filtros e Busca</h2>
-                                <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400">Encontre o craque ideal</p>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-4">
-                            <div>
-                                <label class="flex items-center gap-2 text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                    </svg>
-                                    Posição
-                                </label>
-                                <select id="filtro-posicao" class="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all">
-                                    <option value="">Todas as posições</option>
-                                    <option value="GOL">🧤 Goleiro</option>
-                                    <option value="FIX">🛡️ Fixo</option>
-                                    <option value="ALA">🏃 Ala</option>
-                                    <option value="PIV">🎯 Pivô</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="flex items-center gap-2 text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                    </svg>
-                                    Time
-                                </label>
-                                <select id="filtro-time" class="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all">
-                                    <option value="">Todos os times</option>
-                                </select>
-                            </div>
-                            
-                            <div class="sm:col-span-2 md:col-span-1">
-                                <label class="flex items-center gap-2 text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                    </svg>
-                                    Buscar
-                                </label>
-                                <input type="text" id="busca-jogador" placeholder="Nome do jogador..." 
-                                       class="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all">
+                    <!-- Campo Visual -->
+                    <div id="campo-view" class="field-3d field-lines p-6 min-h-[500px] relative">
+                        <!-- Goleiro -->
+                        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+                            <div id="slot-gol" class="player-slot" onclick="abrirMercado('GOL')">
+                                <div class="player-avatar">
+                                    <span class="text-3xl">🧤</span>
+                                    <div class="position-badge">GOL</div>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <div class="text-xs text-white font-semibold bg-black/30 rounded px-2 py-1">Vazio</div>
+                                </div>
                             </div>
                         </div>
 
-                        <div>
-                            <label class="flex items-center gap-2 text-xs md:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
-                                </svg>
-                                Ordenar por
-                            </label>
-                            <select id="filtro-ordem" class="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all">
-                                <option value="nome">📝 Nome (A-Z)</option>
-                                <option value="preco-asc">💰 Preço (Menor → Maior)</option>
-                                <option value="preco-desc">💎 Preço (Maior → Menor)</option>
-                            </select>
+                        <!-- Fixo -->
+                        <div class="absolute bottom-32 left-1/2 transform -translate-x-1/2">
+                            <div id="slot-fix" class="player-slot" onclick="abrirMercado('FIX')">
+                                <div class="player-avatar">
+                                    <span class="text-3xl">🛡️</span>
+                                    <div class="position-badge">FIX</div>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <div class="text-xs text-white font-semibold bg-black/30 rounded px-2 py-1">Vazio</div>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="bg-gradient-to-r from-orange-50 to-blue-50 dark:from-orange-900/20 dark:to-blue-900/20 border-2 border-orange-200 dark:border-orange-800 rounded-xl p-3 md:p-4 mt-4">
-                            <div class="flex items-start gap-2 md:gap-3">
-                                <div class="text-xl md:text-2xl">⚽</div>
-                                <div class="text-xs md:text-sm">
-                                    <p class="font-bold text-orange-900 dark:text-orange-200 mb-1">Regras da LNF</p>
-                                    <p class="text-orange-800 dark:text-orange-300">
-                                        Monte seu time com <strong>5 jogadores</strong>: 1 GOL, 1 FIX, 2 ALA, 1 PIV • Saldo: <strong>C$ 100,00</strong>
-                                    </p>
+
+                        <!-- Alas -->
+                        <div class="absolute bottom-56 left-1/4 transform -translate-x-1/2">
+                            <div id="slot-ala-1" class="player-slot" onclick="abrirMercado('ALA')">
+                                <div class="player-avatar">
+                                    <span class="text-3xl">🏃</span>
+                                    <div class="position-badge">ALA</div>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <div class="text-xs text-white font-semibold bg-black/30 rounded px-2 py-1">Vazio</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="absolute bottom-56 right-1/4 transform translate-x-1/2">
+                            <div id="slot-ala-2" class="player-slot" onclick="abrirMercado('ALA')">
+                                <div class="player-avatar">
+                                    <span class="text-3xl">🏃</span>
+                                    <div class="position-badge">ALA</div>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <div class="text-xs text-white font-semibold bg-black/30 rounded px-2 py-1">Vazio</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pivô -->
+                        <div class="absolute top-12 left-1/2 transform -translate-x-1/2">
+                            <div id="slot-piv" class="player-slot" onclick="abrirMercado('PIV')">
+                                <div class="player-avatar">
+                                    <span class="text-3xl">🎯</span>
+                                    <div class="position-badge">PIV</div>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <div class="text-xs text-white font-semibold bg-black/30 rounded px-2 py-1">Vazio</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Círculo central -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 border-2 border-white/30 rounded-full"></div>
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white/50 rounded-full"></div>
+                    </div>
+
+                    <!-- Valorização -->
+                    <div class="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Valorização (C$):</span>
+                            <div class="flex items-center gap-1">
+                                <span class="valorization-up">↑ Valorizando</span>
+                                <span class="valorization-down">↓ Desvalorizando</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Banco de Reservas -->
+                    <div class="mt-4">
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">BANCO DE RESERVAS</h4>
+                        <div class="grid grid-cols-5 gap-2">
+                            <div class="text-center">
+                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-1 flex items-center justify-center text-xs">
+                                    GOL
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-1 flex items-center justify-center text-xs">
+                                    LAT
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-1 flex items-center justify-center text-xs">
+                                    ZAG
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-1 flex items-center justify-center text-xs">
+                                    MEI
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-1 flex items-center justify-center text-xs">
+                                    ATA
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Lista de Jogadores -->
-                <div class="animate-slide-in-left" style="animation-delay: 0.2s;">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 md:p-6 border-2 border-blue-200 dark:border-blue-900">
-                        <div class="flex items-center justify-between mb-4 md:mb-6">
-                            <div class="flex items-center gap-2 md:gap-3">
-                                <div class="text-2xl md:text-3xl">⭐</div>
-                                <div>
-                                    <h2 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white">Jogadores LNF</h2>
-                                    <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400">Escolha os melhores da liga</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div id="lista-jogadores" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                            <div class="col-span-full text-center py-8 md:py-12">
-                                <div class="flex flex-col items-center gap-4">
-                                    <div class="relative">
-                                        <div class="animate-spin rounded-full h-12 md:h-16 w-12 md:w-16 border-4 border-orange-200 dark:border-orange-800"></div>
-                                        <div class="animate-spin rounded-full h-12 md:h-16 w-12 md:w-16 border-4 border-transparent border-t-orange-600 dark:border-t-orange-400 absolute top-0 left-0"></div>
-                                    </div>
-                                    <p class="text-sm md:text-base text-gray-500 dark:text-gray-400 font-medium">Carregando jogadores da LNF...</p>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Botões de Ação -->
+                    <div class="mt-4 space-y-2">
+                        <button onclick="salvarEscalacao()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-all">
+                            ✓ Salvar Time
+                        </button>
+                        <button onclick="limparEscalacao()" class="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 rounded-lg transition-all">
+                            🗑️ Limpar Escalação
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Coluna Lateral - Escalação -->
-            <div class="xl:col-span-1">
-                
-                <!-- Botão Flutuante Mobile -->
-                <button id="show-escalacao-mobile" class="xl:hidden fixed bottom-6 right-6 z-30 w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all">
-                    <div class="relative">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                        <span id="counter-jogadores" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">0</span>
+            <!-- COLUNA CENTRAL: TABELA DE JOGADORES -->
+            <div class="col-span-12 lg:col-span-6">
+                <!-- Barra de Filtros -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 mb-4">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <button class="px-4 py-2 bg-orange-600 text-white rounded-lg font-semibold text-sm">
+                            ⚙️ FILTROS
+                        </button>
+                        <select id="filtro-posicao" class="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
+                            <option value="">Todas as posições</option>
+                            <option value="GOL">Goleiro</option>
+                            <option value="FIX">Fixo</option>
+                            <option value="ALA">Ala</option>
+                            <option value="PIV">Pivô</option>
+                        </select>
+                        <input type="text" id="busca-jogador" placeholder="🔍 Nome do atleta" class="flex-1 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
                     </div>
-                </button>
+                </div>
 
-                <!-- Escalação Desktop -->
-                <div class="hidden xl:block space-y-4 md:space-y-6 animate-slide-in-right" id="escalacao-desktop">
-                    
-                    <!-- Orçamento -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 md:p-6 border-2 border-green-200 dark:border-green-900">
-                        <div class="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-                            <div class="text-2xl md:text-3xl">💰</div>
-                            <div>
-                                <h3 class="text-base md:text-lg font-bold text-gray-900 dark:text-white">Orçamento</h3>
-                                <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400">Gerencie suas cartoletas</p>
-                            </div>
+                <!-- Tabela de Jogadores -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-900">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Atleta</th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
+                                        Preço
+                                    </th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Variação</th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Últ. ⚽</th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Média</th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Confronto</th>
+                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-jogadores" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="8" class="px-4 py-12 text-center">
+                                        <div class="flex flex-col items-center gap-4">
+                                            <div class="animate-pulse">
+                                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                                </svg>
+                                            </div>
+                                            <p class="text-gray-500 dark:text-gray-400">Carregando jogadores da LNF...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUNA DIREITA: INFORMAÇÕES E SALDO -->
+            <div class="col-span-12 lg:col-span-3">
+                <!-- Saldo -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 mb-4">
+                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">💰 ORÇAMENTO</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Saldo:</span>
+                            <span id="saldo-atual" class="text-xl font-bold text-green-600 dark:text-green-400">C$ 100.00</span>
                         </div>
-                        
-                        <div class="space-y-3 md:space-y-4">
-                            <div class="flex justify-between items-center p-3 md:p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl">
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-4 md:w-5 h-4 md:h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                    </svg>
-                                    <span class="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">Saldo Total:</span>
-                                </div>
-                                <span id="saldo-atual" class="text-base md:text-lg font-bold text-blue-600 dark:text-blue-400">C$ 100,00</span>
-                            </div>
-                            
-                            <div class="flex justify-between items-center p-3 md:p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 rounded-xl">
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-4 md:w-5 h-4 md:h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <span class="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300">Custo:</span>
-                                </div>
-                                <span id="custo-escalacao" class="text-base md:text-lg font-bold text-red-600 dark:text-red-400">C$ 0,00</span>
-                            </div>
-                            
-                            <div class="border-t-2 border-gray-200 dark:border-gray-700 pt-3 md:pt-4">
-                                <div class="flex justify-between items-center p-3 md:p-4 bg-gradient-to-r from-green-50 to-emerald-100 dark:from-green-900/30 dark:to-emerald-800/30 rounded-xl">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 md:w-5 h-4 md:h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                        <span class="text-xs md:text-sm font-bold text-gray-700 dark:text-gray-300">Disponível:</span>
-                                    </div>
-                                    <span id="saldo-restante" class="text-lg md:text-xl font-black text-green-600 dark:text-green-400">C$ 100,00</span>
-                                </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Gasto:</span>
+                            <span id="valor-gasto" class="text-lg font-semibold text-red-600 dark:text-red-400">C$ 0.00</span>
+                        </div>
+                        <div class="border-t border-gray-200 dark:border-gray-700 pt-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Restante:</span>
+                                <span id="saldo-restante" class="text-2xl font-black text-blue-600 dark:text-blue-400">C$ 100.00</span>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Escalação -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 md:p-6 border-2 border-orange-200 dark:border-orange-900">
-                        <div class="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-                            <div class="text-2xl md:text-3xl">⚽</div>
-                            <div>
-                                <h3 class="text-base md:text-lg font-bold text-gray-900 dark:text-white">Sua Escalação</h3>
-                                <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400">Monte seu time titular</p>
+                <!-- Esquema Tático -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 mb-4">
+                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">📋 ESQUEMA TÁTICO</h3>
+                    <select class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
+                        <option value="1-1-2-1">1-1-2-1 (Tradicional Futsal)</option>
+                    </select>
+                    <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <p class="text-xs text-blue-900 dark:text-blue-200">
+                            <strong>Futsal LNF:</strong> 1 Goleiro, 1 Fixo, 2 Alas, 1 Pivô
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Estatísticas Gerais -->
+                <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-4 text-white">
+                    <h3 class="text-sm font-bold mb-4">📊 ESTATÍSTICAS</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">Jogadores escalados:</span>
+                            <span id="total-jogadores" class="text-2xl font-bold">0/5</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">Posições faltando:</span>
+                            <span id="posicoes-faltando" class="text-lg font-semibold">5</span>
+                        </div>
+                        <div class="border-t border-white/30 pt-3">
+                            <div class="text-xs opacity-80">
+                                Complete sua escalação para poder salvar!
                             </div>
                         </div>
-                        
-                        <!-- Resumo -->
-                        <div id="resumo-escalacao" class="mb-4 md:mb-6"></div>
-                        
-                        <!-- Campo Visual -->
-                        <div class="field-bg rounded-xl md:rounded-2xl p-4 md:p-6 mb-4 md:mb-6">
-                            <div class="space-y-3 md:space-y-4">
-                                <!-- Goleiro -->
-                                <div>
-                                    <label class="flex items-center gap-2 text-xs font-bold text-white/80 mb-2 uppercase tracking-wider">
-                                        <span class="text-base md:text-lg">🧤</span>
-                                        Goleiro
-                                    </label>
-                                    <div id="container-gol">
-                                        <div class="glass-effect rounded-xl p-3 md:p-4 border-2 border-dashed border-white/30 text-center min-h-[60px] md:min-h-[80px] flex items-center justify-center">
-                                            <div class="text-white/60 text-xs md:text-sm">
-                                                <div class="text-xl md:text-2xl mb-1">👤</div>
-                                                <div class="font-semibold">Vazio</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    </div>
+                </div>
 
-                                <!-- Fixo -->
-                                <div>
-                                    <label class="flex items-center gap-2 text-xs font-bold text-white/80 mb-2 uppercase tracking-wider">
-                                        <span class="text-base md:text-lg">🛡️</span>
-                                        Fixo
-                                    </label>
-                                    <div id="container-fix">
-                                        <div class="glass-effect rounded-xl p-3 md:p-4 border-2 border-dashed border-white/30 text-center min-h-[60px] md:min-h-[80px] flex items-center justify-center">
-                                            <div class="text-white/60 text-xs md:text-sm">
-                                                <div class="text-xl md:text-2xl mb-1">👤</div>
-                                                <div class="font-semibold">Vazio</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Alas -->
-                                <div>
-                                    <label class="flex items-center gap-2 text-xs font-bold text-white/80 mb-2 uppercase tracking-wider">
-                                        <span class="text-base md:text-lg">🏃</span>
-                                        Alas
-                                    </label>
-                                    <div class="grid grid-cols-2 gap-2 md:gap-3">
-                                        <div id="container-ala-1">
-                                            <div class="glass-effect rounded-xl p-3 md:p-4 border-2 border-dashed border-white/30 text-center min-h-[60px] md:min-h-[80px] flex items-center justify-center">
-                                                <div class="text-white/60 text-xs md:text-sm">
-                                                    <div class="text-xl md:text-2xl mb-1">👤</div>
-                                                    <div class="font-semibold">Ala 1</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="container-ala-2">
-                                            <div class="glass-effect rounded-xl p-3 md:p-4 border-2 border-dashed border-white/30 text-center min-h-[60px] md:min-h-[80px] flex items-center justify-center">
-                                                <div class="text-white/60 text-xs md:text-sm">
-                                                    <div class="text-xl md:text-2xl mb-1">👤</div>
-                                                    <div class="font-semibold">Ala 2</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Pivô -->
-                                <div>
-                                    <label class="flex items-center gap-2 text-xs font-bold text-white/80 mb-2 uppercase tracking-wider">
-                                        <span class="text-base md:text-lg">🎯</span>
-                                        Pivô
-                                    </label>
-                                    <div id="container-piv">
-                                        <div class="glass-effect rounded-xl p-3 md:p-4 border-2 border-dashed border-white/30 text-center min-h-[60px] md:min-h-[80px] flex items-center justify-center">
-                                            <div class="text-white/60 text-xs md:text-sm">
-                                                <div class="text-xl md:text-2xl mb-1">👤</div>
-                                                <div class="font-semibold">Vazio</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                <!-- Info da Rodada -->
+                <div class="mt-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">🏆 RODADA ATUAL</h3>
+                    <div id="info-rodada" class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-400">Status:</span>
+                            <span class="text-green-600 dark:text-green-400 font-semibold">Mercado Aberto</span>
                         </div>
-
-                        <!-- Botões -->
-                        <div class="space-y-2 md:space-y-3">
-                            <button id="btn-salvar-escalacao" onclick="salvarEscalacao()"
-                                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 md:py-4 px-4 md:px-6 rounded-xl transition-all transform hover:scale-105 shadow-xl hover:shadow-2xl disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2 text-sm md:text-base">
-                                <svg class="w-4 md:w-5 h-4 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                Salvar Escalação
-                            </button>
-                            
-                            <button id="btn-limpar-escalacao" onclick="limparEscalacao()"
-                                    class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-3 md:py-4 px-4 md:px-6 rounded-xl transition-all transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 text-sm md:text-base">
-                                <svg class="w-4 md:w-5 h-4 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                                Limpar Escalação
-                            </button>
-                            
-                            <div class="text-center pt-2">
-                                <a href="dashboard.html" class="inline-flex items-center gap-2 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-semibold text-xs md:text-sm transition-colors">
-                                    <svg class="w-3 md:w-4 h-3 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                                    </svg>
-                                    Voltar ao Dashboard
-                                </a>
-                            </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-400">Próxima rodada:</span>
+                            <span class="font-semibold text-gray-900 dark:text-white">Rodada 1</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="bg-white/50 dark:bg-gray-800/50 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 mt-8 md:mt-12 py-4 md:py-6">
-        <div class="container mx-auto px-4 text-center">
-            <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400">
-                ⚽ <strong>LNF Fantasy</strong> - Liga Nacional de Futsal • 2025
-            </p>
-            <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                Monte seu time dos sonhos da LNF! 🏆
-            </p>
-        </div>
-    </footer>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -507,76 +420,6 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/theme.js"></script>
     <script src="assets/js/auth.js"></script>
-    <script src="assets/js/mercado.js"></script>
-    
-    <!-- Mobile Scripts -->
-    <script>
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const closeMobileMenuButton = document.getElementById('close-mobile-menu');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileOverlay = document.getElementById('mobile-overlay');
-
-        function openMobileMenu() {
-            mobileMenu.classList.add('open');
-            mobileOverlay.classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeMobileMenu() {
-            mobileMenu.classList.remove('open');
-            mobileOverlay.classList.remove('open');
-            document.body.style.overflow = '';
-        }
-
-        mobileMenuButton?.addEventListener('click', openMobileMenu);
-        closeMobileMenuButton?.addEventListener('click', closeMobileMenu);
-        mobileOverlay?.addEventListener('click', (e) => {
-            if (e.target === mobileOverlay) {
-                closeMobileMenu();
-            }
-        });
-
-        const themeToggleMobile = document.getElementById('theme-toggle-mobile');
-        if (themeToggleMobile) {
-            themeToggleMobile.addEventListener('click', toggleTheme);
-        }
-
-        const toggleFiltersMobile = document.getElementById('toggle-filters-mobile');
-        const filtersContent = document.getElementById('filters-content');
-        const filtersArrow = document.getElementById('filters-arrow');
-
-        toggleFiltersMobile?.addEventListener('click', () => {
-            filtersContent.classList.toggle('open');
-            filtersArrow.classList.toggle('rotate-180');
-        });
-
-        function updateCounterJogadores() {
-            const counter = document.getElementById('counter-jogadores');
-            if (counter && typeof calcularTotalJogadores === 'function') {
-                const total = calcularTotalJogadores();
-                counter.textContent = total;
-                counter.className = total > 0 
-                    ? 'absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center animate-pulse' 
-                    : 'absolute -top-2 -right-2 bg-gray-400 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center';
-            }
-        }
-
-        function syncMobileSaldo() {
-            const saldo = document.getElementById('saldo-atual')?.textContent;
-            const saldoMobile = document.getElementById('saldo-atual-mobile');
-            if (saldoMobile && saldo) {
-                saldoMobile.textContent = saldo;
-            }
-        }
-
-        setInterval(() => {
-            updateCounterJogadores();
-            syncMobileSaldo();
-        }, 1000);
-
-        setTimeout(syncMobileSaldo, 1000);
-        
-        console.log('✅ Mercado LNF Fantasy carregado');
-    </script>
+    <script src="assets/js/mercado-cartola.js"></script>
 </body>
 </html>
