@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FF6B00">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Painel Admin - LNF Fantasy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { 
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'lnf-orange': '#FF6B00',
+                        'lnf-orange-dark': '#E55F00',
+                        'lnf-blue': '#003366',
+                        'lnf-blue-dark': '#002244'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide-in-up { animation: slideInUp 0.6s ease-out forwards; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black min-h-screen">
+    
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-xl border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center gap-3">
+                    <div class="text-4xl">⚙️</div>
+                    <div>
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 dark:from-red-400 dark:to-orange-400 bg-clip-text text-transparent">
+                            Painel Admin
+                        </h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">LNF Fantasy</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <a href="dashboard.html" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all text-sm font-medium">
+                        Dashboard
+                    </a>
+                    <a href="mercado.html" class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all text-sm font-medium">
+                        Mercado
+                    </a>
+                    <button id="theme-toggle" class="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all shadow-md">
+                        <span class="dark:hidden text-xl">🌙</span>
+                        <span class="hidden dark:inline text-xl">☀️</span>
+                    </button>
+                    <button onclick="logout()" class="p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-all shadow-md" title="Sair">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Cards de Estatísticas -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm opacity-80 mb-1">Total Jogadores</p>
+                        <p id="total-jogadores" class="text-3xl font-bold">0</p>
+                    </div>
+                    <div class="text-4xl opacity-50">⚽</div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm opacity-80 mb-1">Times LNF</p>
+                        <p id="total-times" class="text-3xl font-bold">0</p>
+                    </div>
+                    <div class="text-4xl opacity-50">🏆</div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm opacity-80 mb-1">Rodadas</p>
+                        <p id="total-rodadas" class="text-3xl font-bold">0</p>
+                    </div>
+                    <div class="text-4xl opacity-50">📊</div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm opacity-80 mb-1">Usuários</p>
+                        <p id="total-usuarios" class="text-3xl font-bold">0</p>
+                    </div>
+                    <div class="text-4xl opacity-50">👥</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="border-b border-gray-200 dark:border-gray-700">
+                <nav class="flex overflow-x-auto">
+                    <button data-tab="jogadores" class="px-6 py-4 text-sm font-semibold border-b-2 border-orange-500 text-orange-600 dark:text-orange-400 whitespace-nowrap">
+                        ⚽ Jogadores
+                    </button>
+                    <button data-tab="times" class="px-6 py-4 text-sm font-semibold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 whitespace-nowrap">
+                        🏆 Times
+                    </button>
+                    <button data-tab="rodadas" class="px-6 py-4 text-sm font-semibold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 whitespace-nowrap">
+                        📊 Rodadas
+                    </button>
+                    <button data-tab="scouts" class="px-6 py-4 text-sm font-semibold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 whitespace-nowrap">
+                        📝 Scouts
+                    </button>
+                </nav>
+            </div>
+
+            <div class="p-6">
+                <!-- Tab: Jogadores -->
+                <div data-content="jogadores" class="tab-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Adicionar Jogador -->
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span>➕</span> Adicionar Jogador
+                            </h3>
+                            <form id="form-adicionar-jogador" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome</label>
+                                    <input type="text" id="nome-jogador" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Posição</label>
+                                    <select id="posicao-jogador" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500">
+                                        <option value="">Selecione</option>
+                                        <option value="GOL">🧤 Goleiro</option>
+                                        <option value="FIX">🛡️ Fixo</option>
+                                        <option value="ALA">🏃 Ala</option>
+                                        <option value="PIV">🎯 Pivô</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Preço (Cartoletas)</label>
+                                    <input type="number" id="preco-jogador" step="0.01" min="1" max="15" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Time</label>
+                                    <select id="time-jogador" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500">
+                                        <option value="">Selecione um time</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL da Foto (opcional)</label>
+                                    <input type="url" id="foto-jogador" placeholder="https://..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500">
+                                </div>
+
+                                <button type="button" id="btn-adicionar-jogador" class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 shadow-lg">
+                                    ✓ Adicionar Jogador
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Lista de Jogadores -->
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span>📋</span> Jogadores Cadastrados
+                            </h3>
+                            
+                            <!-- Filtros -->
+                            <div class="flex gap-2 mb-4">
+                                <select id="filtro-posicao-jogadores" class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    <option value="">Todas posições</option>
+                                    <option value="GOL">Goleiro</option>
+                                    <option value="FIX">Fixo</option>
+                                    <option value="ALA">Ala</option>
+                                    <option value="PIV">Pivô</option>
+                                </select>
+                                <select id="filtro-time-jogadores" class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    <option value="">Todos os times</option>
+                                </select>
+                            </div>
+
+                            <div class="overflow-auto max-h-[600px] border border-gray-200 dark:border-gray-700 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-900 sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Jogador</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Pos</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Preço</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="lista-jogadores" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        <tr><td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Carregando...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Times -->
+                <div data-content="times" class="tab-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Adicionar Time -->
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span>➕</span> Adicionar Time
+                            </h3>
+                            <form id="form-adicionar-time" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome do Time</label>
+                                    <input type="text" id="nome-time" required placeholder="Ex: Magnus Futsal" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL do Logo (opcional)</label>
+                                    <input type="url" id="logo-time" placeholder="https://..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500">
+                                </div>
+
+                                <button type="button" id="btn-adicionar-time" class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 shadow-lg">
+                                    ✓ Adicionar Time
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Lista de Times -->
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span>🏆</span> Times da LNF
+                            </h3>
+                            <div class="overflow-auto max-h-[500px] border border-gray-200 dark:border-gray-700 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-900 sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Time</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="lista-times" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        <tr><td colspan="2" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Carregando...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Rodadas -->
+                <div data-content="rodadas" class="tab-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Criar Rodada -->
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span>➕</span> Criar Rodada
+                            </h3>
+                            <form id="form-criar-rodada" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome da Rodada</label>
+                                    <input type="text" id="nome-rodada" required placeholder="Ex: Rodada 1" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500">
+                                </div>
+
+                                <button type="button" id="btn-criar-rodada" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105 shadow-lg">
+                                    ✓ Criar Rodada
+                                </button>
+                            </form>
+
+                            <div class="mt-8 p-4 bg-orange-50 dark:bg-orange-900/20 border-2 border-orange-200 dark:border-orange-800 rounded-lg">
+                                <h4 class="font-bold text-orange-900 dark:text-orange-200 mb-2">⚙️ Gerenciar Rodada</h4>
+                                <div class="space-y-3">
+                                    <select id="rodada-gerenciar" class="w-full px-4 py-2 border border-orange-300 dark:border-orange-700 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                        <option value="">Selecione uma rodada...</option>
+                                    </select>
+                                    <button id="btn-iniciar-rodada" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-all">
+                                        ▶️ Iniciar Rodada
+                                    </button>
+                                    <button id="btn-finalizar-rodada" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition-all">
+                                        🏁 Finalizar Rodada
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de Rodadas -->
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span>📊</span> Rodadas LNF
+                            </h3>
+                            <div class="overflow-auto max-h-[500px] border border-gray-200 dark:border-gray-700 rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <thead class="bg-gray-50 dark:bg-gray-900 sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Rodada</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="lista-rodadas" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        <tr><td colspan="3" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Carregando...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Scouts -->
+                <div data-content="scouts" class="tab-content">
+                    <div class="max-w-2xl mx-auto">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center flex items-center justify-center gap-2">
+                            <span>📝</span> Lançar Scouts
+                        </h3>
+                        
+                        <form id="form-scout" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rodada</label>
+                                    <select id="scout-rodada" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500">
+                                        <option value="">Selecione</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jogador</label>
+                                    <select id="scout-jogador" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500">
+                                        <option value="">Selecione</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-lg">
+                                <h4 class="font-bold text-green-900 dark:text-green-200 mb-3">✅ Ações Positivas</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">⚽ Gols (+8)</label>
+                                        <input type="number" id="scout-gols" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">🎯 Assistências (+5)</label>
+                                        <input type="number" id="scout-assistencias" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">🎪 Finalizações (+3)</label>
+                                        <input type="number" id="scout-finalizacoes" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">🧤 Defesas (+7)</label>
+                                        <input type="number" id="scout-defesas" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" id="scout-sem-gols" class="w-5 h-5 text-green-600 border-gray-300 dark:border-gray-600 rounded focus:ring-green-500">
+                                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">🛡️ Jogo sem sofrer gol (+5)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-lg">
+                                <h4 class="font-bold text-red-900 dark:text-red-200 mb-3">❌ Ações Negativas</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">⚽ Gols Contra (-3)</label>
+                                        <input type="number" id="scout-gols-contra" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">🟨 Cartões Amarelos (-1)</label>
+                                        <input type="number" id="scout-amarelos" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">🟥 Cartões Vermelhos (-5)</label>
+                                        <input type="number" id="scout-vermelhos" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">⚠️ Faltas (-0.3)</label>
+                                        <input type="number" id="scout-faltas" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" id="btn-salvar-scout" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-lg transition-all transform hover:scale-105 shadow-lg text-lg">
+                                💾 Salvar Scout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Jogador -->
+    <div id="modal-editar-jogador" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Editar Jogador</h3>
+            <form id="form-editar-jogador" class="space-y-4">
+                <input type="hidden" id="edit-jogador-id">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome</label>
+                    <input type="text" id="edit-nome-jogador" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Posição</label>
+                    <select id="edit-posicao-jogador" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="GOL">Goleiro</option>
+                        <option value="FIX">Fixo</option>
+                        <option value="ALA">Ala</option>
+                        <option value="PIV">Pivô</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Preço</label>
+                    <input type="number" id="edit-preco-jogador" step="0.01" min="1" max="15" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Time</label>
+                    <select id="edit-time-jogador" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">Selecione um time</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL da Foto</label>
+                    <input type="url" id="edit-foto-jogador" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" id="btn-salvar-edicao-jogador" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-all">
+                        Salvar
+                    </button>
+                    <button type="button" id="btn-cancelar-edicao-jogador" class="flex-1 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-700 text-gray-800 dark:text-white font-bold py-2 px-4 rounded-lg transition-all">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white/50 dark:bg-gray-800/50 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 mt-12 py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                ⚙️ <strong>Painel Administrativo</strong> - LNF Fantasy • 2025
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/admin.js"></script>
+</body>
+</html>
