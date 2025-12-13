@@ -1,52 +1,25 @@
 /* ============================================
-   LNF FANTASY - ESTILOS CUSTOMIZADOS
+   LNF FANTASY - ESTILOS PROFISSIONAIS
    ============================================ */
 
-/* Cores da LNF */
+/* Variáveis */
 :root {
-    /* Cores principais LNF */
-    --lnf-orange: #FF6B00;
-    --lnf-orange-dark: #E55F00;
-    --lnf-blue: #003366;
-    --lnf-blue-dark: #002244;
-    
-    /* Cores secundárias */
-    --primary-green: #10b981;
-    --primary-green-dark: #059669;
-    --primary-red: #ef4444;
-    --primary-yellow: #f59e0b;
-    
-    /* Cores de fundo */
-    --bg-light: #f9fafb;
-    --bg-dark: #111827;
-    --card-light: #ffffff;
-    --card-dark: #1f2937;
-    
-    /* Texto */
-    --text-light: #111827;
-    --text-dark: #f9fafb;
-    --text-muted-light: #6b7280;
-    --text-muted-dark: #9ca3af;
-    
-    /* Bordas */
-    --border-light: #e5e7eb;
-    --border-dark: #374151;
-    
-    /* Sombras */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    
-    /* Transições */
-    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Raios de borda */
-    --radius-sm: 0.375rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --radius-xl: 1rem;
+    --primary: #FF6B00;
+    --primary-dark: #E55F00;
+    --secondary: #003366;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
 }
 
 /* Reset */
@@ -57,325 +30,360 @@
 }
 
 html {
-    scroll-behavior: smooth;
+    font-size: 16px;
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     line-height: 1.6;
+    color: var(--gray-900);
+    background: var(--gray-50);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
-/* ============================================
-   COMPONENTES REUTILIZÁVEIS
-   ============================================ */
+/* Container */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
 
-/* Botões com cores LNF */
-.btn-primary-lnf {
-    background: linear-gradient(135deg, var(--lnf-orange) 0%, var(--lnf-orange-dark) 100%);
+/* Grid */
+.grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+
+/* Flex */
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-2 { gap: 0.5rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+
+/* Espaçamento */
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+
+/* Tipografia */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--gray-900);
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+
+.text-sm { font-size: 0.875rem; }
+.text-xs { font-size: 0.75rem; }
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+
+/* Cards */
+.card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+/* Botões */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: var(--primary);
     color: white;
 }
 
-.btn-primary-lnf:hover {
-    background: linear-gradient(135deg, var(--lnf-orange-dark) 0%, #CC5500 100%);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+.btn-primary:hover:not(:disabled) {
+    background: var(--primary-dark);
 }
 
-.btn-secondary-lnf {
-    background: linear-gradient(135deg, var(--lnf-blue) 0%, var(--lnf-blue-dark) 100%);
+.btn-success {
+    background: var(--success);
     color: white;
 }
 
-.btn-secondary-lnf:hover {
-    background: linear-gradient(135deg, var(--lnf-blue-dark) 0%, #001122 100%);
+.btn-success:hover:not(:disabled) {
+    background: #059669;
 }
 
-/* Cards com tema LNF */
-.card-lnf {
-    background: var(--card-light);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    border: 2px solid rgba(255, 107, 0, 0.1);
-    transition: all var(--transition-normal);
+.btn-danger {
+    background: var(--danger);
+    color: white;
 }
 
-.dark .card-lnf {
-    background: var(--card-dark);
-    border-color: rgba(255, 107, 0, 0.2);
+.btn-danger:hover:not(:disabled) {
+    background: #dc2626;
 }
 
-.card-lnf:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--lnf-orange);
+.btn-secondary {
+    background: var(--gray-200);
+    color: var(--gray-700);
 }
 
-/* Badges */
-.badge-lnf-orange {
-    background-color: rgba(255, 107, 0, 0.1);
-    color: var(--lnf-orange-dark);
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
+.btn-secondary:hover:not(:disabled) {
+    background: var(--gray-300);
+}
+
+/* Inputs */
+input, select, textarea {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--gray-300);
+    border-radius: 0.375rem;
+    background: white;
+    transition: border-color 0.15s;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+input:disabled, select:disabled, textarea:disabled {
+    background: var(--gray-100);
+    cursor: not-allowed;
+}
+
+label {
+    display: block;
+    font-size: 0.875rem;
     font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.375rem;
 }
 
-.dark .badge-lnf-orange {
-    background-color: rgba(255, 107, 0, 0.2);
-    color: var(--lnf-orange);
+/* Tabelas */
+table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.badge-lnf-blue {
-    background-color: rgba(0, 51, 102, 0.1);
-    color: var(--lnf-blue-dark);
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
+th, td {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+th {
+    background: var(--gray-50);
     font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--gray-600);
 }
 
-.dark .badge-lnf-blue {
-    background-color: rgba(0, 51, 102, 0.2);
-    color: #5588BB;
+tbody tr:hover {
+    background: var(--gray-50);
 }
 
-/* ============================================
-   ANIMAÇÕES
-   ============================================ */
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-}
-
-@keyframes bounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-.fade-in {
-    animation: fadeIn var(--transition-normal) ease-out;
-}
-
-.slide-in {
-    animation: slideIn var(--transition-normal) ease-out;
-}
-
-/* ============================================
-   COMPONENTES ESPECÍFICOS LNF
-   ============================================ */
-
-/* Header com gradiente LNF */
-.navbar-lnf {
-    background: linear-gradient(135deg, var(--lnf-orange) 0%, var(--lnf-blue) 100%);
-    box-shadow: var(--shadow-sm);
+/* Navbar */
+.navbar {
+    background: white;
+    border-bottom: 1px solid var(--gray-200);
     position: sticky;
     top: 0;
     z-index: 50;
 }
 
-/* Cards de estatísticas com tema LNF */
-.stat-card-lnf {
-    background: linear-gradient(135deg, var(--lnf-orange) 0%, var(--lnf-orange-dark) 100%);
-    color: white;
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-lg);
-    transition: transform var(--transition-normal);
-}
-
-.stat-card-lnf:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-xl);
-}
-
-.stat-card-lnf-blue {
-    background: linear-gradient(135deg, var(--lnf-blue) 0%, var(--lnf-blue-dark) 100%);
-}
-
-/* Tabela de ranking LNF */
-.ranking-table-lnf thead {
-    background: linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(0, 51, 102, 0.1) 100%);
-}
-
-.ranking-table-lnf tbody tr.current-user {
-    background: rgba(255, 107, 0, 0.1);
+/* Badges */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    border-left: 4px solid var(--lnf-orange);
+    border-radius: 9999px;
 }
 
-.dark .ranking-table-lnf tbody tr.current-user {
-    background: rgba(255, 107, 0, 0.2);
+.badge-success {
+    background: #d1fae5;
+    color: #065f46;
 }
 
-/* Cards de jogadores LNF */
-.player-card-lnf {
-    background: white;
-    border-radius: var(--radius-lg);
+.badge-danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.badge-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-primary {
+    background: #fee2d5;
+    color: #9a3412;
+}
+
+/* Alerts */
+.alert {
     padding: 1rem;
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-normal);
-    border: 2px solid transparent;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
 }
 
-.dark .player-card-lnf {
-    background: var(--card-dark);
+.alert-success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
 }
 
-.player-card-lnf:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--lnf-orange);
+.alert-danger {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
 }
 
-.player-card-lnf-selected {
-    border-color: var(--primary-green);
-    background: rgba(16, 185, 129, 0.1);
+.alert-warning {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
 }
 
-.dark .player-card-lnf-selected {
-    background: rgba(16, 185, 129, 0.2);
+/* Loading */
+.spinner {
+    border: 3px solid var(--gray-200);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 0.8s linear infinite;
 }
 
-/* Campo de futsal com tema LNF */
-.field-container-lnf {
-    background: linear-gradient(135deg, var(--lnf-blue) 0%, #1e3c72 50%, var(--lnf-blue) 100%);
-    border-radius: var(--radius-xl);
-    padding: 2rem;
-    min-height: 400px;
-    position: relative;
-    border: 3px solid var(--lnf-orange);
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
-/* Notificações LNF */
-.notification-lnf {
-    border-left: 4px solid var(--lnf-orange);
-    background: white;
-    border-radius: var(--radius-lg);
-    padding: 1rem 1.5rem;
-    box-shadow: var(--shadow-xl);
-}
+/* Utilitários */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.hidden { display: none; }
+.block { display: block; }
+.w-full { width: 100%; }
 
-.dark .notification-lnf {
-    background: var(--card-dark);
-}
+.text-primary { color: var(--primary); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-gray { color: var(--gray-600); }
 
-/* Texto com gradiente LNF */
-.text-gradient-lnf {
-    background: linear-gradient(135deg, var(--lnf-orange) 0%, var(--lnf-blue) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
+.bg-gray-50 { background: var(--gray-50); }
+.bg-white { background: white; }
 
-/* ============================================
-   RESPONSIVIDADE
-   ============================================ */
+.rounded { border-radius: 0.375rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.rounded-full { border-radius: 9999px; }
 
+.shadow { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+/* Responsivo */
 @media (max-width: 768px) {
-    .card-lnf {
+    html {
+        font-size: 14px;
+    }
+
+    .grid-cols-2,
+    .grid-cols-3,
+    .grid-cols-4,
+    .grid-cols-5 {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
         padding: 1rem;
     }
-    
-    .field-container-lnf {
-        padding: 1rem;
-        min-height: 300px;
+
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1.125rem; }
+}
+
+@media (min-width: 769px) {
+    .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .md\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+    .md\:flex { display: flex; }
+    .md\:block { display: block; }
+}
+
+/* Modo escuro */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --gray-50: #111827;
+        --gray-100: #1f2937;
+        --gray-200: #374151;
+        --gray-900: #f9fafb;
     }
-    
-    .stat-card-lnf {
-        padding: 1rem;
-    }
-}
 
-/* ============================================
-   UTILIDADES LNF
-   ============================================ */
-
-.shadow-glow-lnf {
-    box-shadow: 0 0 20px rgba(255, 107, 0, 0.3);
-}
-
-.hover-lift-lnf {
-    transition: transform var(--transition-normal);
-}
-
-.hover-lift-lnf:hover {
-    transform: translateY(-4px);
-}
-
-/* Scrollbar customizada com cores LNF */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bg-light);
-}
-
-.dark ::-webkit-scrollbar-track {
-    background: var(--bg-dark);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--lnf-orange);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--lnf-orange-dark);
-}
-
-/* ============================================
-   IMPRESSÃO
-   ============================================ */
-
-@media print {
-    .navbar-lnf,
-    .btn,
-    button,
-    .no-print {
-        display: none !important;
-    }
-    
     body {
-        background: white;
-        color: black;
+        background: var(--gray-900);
+        color: var(--gray-50);
     }
-    
-    .card-lnf {
-        box-shadow: none;
-        border: 1px solid #e5e7eb;
+
+    .card, .navbar, input, select, textarea {
+        background: var(--gray-800);
+        color: var(--gray-50);
+        border-color: var(--gray-700);
+    }
+
+    th {
+        background: var(--gray-900);
+    }
+
+    tbody tr:hover {
+        background: var(--gray-900);
     }
 }

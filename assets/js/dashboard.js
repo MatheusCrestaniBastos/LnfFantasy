@@ -1,358 +1,218 @@
 // ============================================
-// LNF FANTASY - DASHBOARD DO USUÁRIO
+// LNF FANTASY - DASHBOARD
 // ============================================
 
-/**
- * Dashboard principal do usuário
- * Liga Nacional de Futsal - Fantasy Game
- */
+let currentUser = null;
 
-// ============================================
-// VARIÁVEIS GLOBAIS
-// ============================================
-
-let usuarioLogado = null;
-let intervaloAtualizacao = null;
-
-// ============================================
-// INICIALIZAÇÃO
-// ============================================
-
+// Inicialização
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('📊 Dashboard LNF Fantasy carregando...');
+    currentUser = await auth.requireAuth();
     
-    usuarioLogado = await verificarAutenticacao();
-    
-    if (!usuarioLogado) {
-        console.log('❌ Usuário não autenticado');
-        window.location.href = 'index.html';
-        return;
-    }
-    
-    console.log('✅ Usuário logado:', usuarioLogado.email);
-    
-    verificarPermissoesAdmin();
-    
-    await carregarTodosDados();
-    
-    iniciarAtualizacaoAutomatica();
+    if (!currentUser) return;
+
+    // Mostrar nome do time
+    document.getElementById('user-team-name').textContent = currentUser.team_name;
+
+    // Carregar dados
+    await Promise.all([
+        loadUserStats(),
+        loadMyTeam(),
+        loadRanking()
+    ]);
 });
 
-// ============================================
-// PERMISSÕES
-// ============================================
-
-function verificarPermissoesAdmin() {
-    if (usuarioLogado.role === 'admin' || usuarioLogado.is_admin) {
-        const linkAdmin = document.getElementById('link-admin');
-        const linkAdminMobile = document.getElementById('link-admin-mobile');
-        
-        if (linkAdmin) linkAdmin.classList.remove('hidden');
-        if (linkAdminMobile) linkAdminMobile.classList.remove('hidden');
-        
-        console.log('🔑 Permissões de admin detectadas');
-    }
-}
-
-// ============================================
-// CARREGAMENTO DE DADOS
-// ============================================
-
-async function carregarTodosDados() {
+// Carregar estatísticas do usuário
+async function loadUserStats() {
     try {
-        await Promise.all([
-            carregarDadosUsuario(),
-            carregarRanking(),
-            carregarHistorico()
-        ]);
-        
-        console.log('✅ Todos os dados carregados');
-    } catch (error) {
-        console.error('❌ Erro ao carregar dados:', error);
-        showError('Erro ao carregar dados do dashboard');
-    }
-}
+        // Atualizar pontos e cartoletas
+        const { data: userData } = await supabase
+            .from('users')
+            .select('total_points, cartoletas')
+            .eq('id', currentUser.id)
+            .single();
 
-async function carregarDadosUsuario() {
-    try {
-        console.log('📊 Carregando dados do usuário...');
-        
-        atualizarElementos('#user-team-name, #user-team-name-mobile', usuarioLogado.team_name);
-        
-        const cartoletasFormatado = `C$ ${parseFloat(usuarioLogado.cartoletas).toFixed(2)}`;
-        atualizarElementos('#user-cartoletas, #user-cartoletas-card, #user-cartoletas-mobile', cartoletasFormatado);
-        
-        const elementPoints = document.getElementById('user-points');
-        if (elementPoints) {
-            elementPoints.textContent = usuarioLogado.total_points || 0;
+        if (userData) {
+            document.getElementById('user-points').textContent = userData.total_points || 0;
+            document.getElementById('user-cartoletas').textContent = `C$ ${userData.cartoletas.toFixed(2)}`;
         }
-        
-        const { count, error } = await supabase
+
+        // Contar rodadas participadas
+        const { count } = await supabase
             .from('lineups')
             .select('*', { count: 'exact', head: true })
-            .eq('user_id', usuarioLogado.id);
-        
-        if (!error) {
-            const elementRounds = document.getElementById('user-rounds');
-            if (elementRounds) {
-                elementRounds.textContent = count || 0;
-            }
-        }
-        
-        console.log('✅ Dados do usuário carregados');
-        
+            .eq('user_id', currentUser.id);
+
+        document.getElementById('user-rounds').textContent = count || 0;
+
     } catch (error) {
-        console.error('❌ Erro ao carregar dados do usuário:', error);
+        console.error('Erro ao carregar stats:', error);
     }
 }
 
-async function carregarRanking() {
+// Carregar meu time
+async function loadMyTeam() {
     try {
-        console.log('🏆 Carregando ranking...');
-        
-        const { data: ranking, error } = await supabase
+        // Buscar rodada ativa ou pendente
+        const { data: rounds } = await supabase
+            .from('rounds')
+            .select('id, name, status')
+            .in('status', ['active', 'pending'])
+            .order('id', { ascending: false })
+            .limit(1);
+
+        if (!rounds || rounds.length === 0) {
+            document.getElementById('meu-time').innerHTML = `
+                <div style="grid-column: 1 / -1;" class="text-center text-gray">
+                    Nenhuma rodada disponível
+                </div>
+            `;
+            document.getElementById('rodada-info').textContent = 'Nenhuma rodada';
+            return;
+        }
+
+        const round = rounds[0];
+        const statusText = round.status === 'active' ? '🔴 Em andamento' : '⏳ Pendente';
+        document.getElementById('rodada-info').textContent = `${round.name} - ${statusText}`;
+
+        // Buscar escalação
+        const { data: lineups } = await supabase
+            .from('lineups')
+            .select('id, total_points')
+            .eq('user_id', currentUser.id)
+            .eq('round_id', round.id);
+
+        if (!lineups || lineups.length === 0) {
+            document.getElementById('meu-time').innerHTML = `
+                <div style="grid-column: 1 / -1;" class="text-center">
+                    <p class="text-gray mb-4">Você ainda não escalou um time nesta rodada</p>
+                    <a href="mercado.html" class="btn btn-primary">Escalar Time</a>
+                </div>
+            `;
+            return;
+        }
+
+        const lineup = lineups[0];
+
+        // Buscar jogadores
+        const { data: players } = await supabase
+            .from('lineup_players')
+            .select(`
+                points,
+                players (
+                    id, name, position, price, photo_url,
+                    teams (name, logo_url)
+                )
+            `)
+            .eq('lineup_id', lineup.id)
+            .eq('is_starter', true);
+
+        if (!players || players.length === 0) {
+            document.getElementById('meu-time').innerHTML = `
+                <div style="grid-column: 1 / -1;" class="text-center text-gray">
+                    Escalação vazia
+                </div>
+            `;
+            return;
+        }
+
+        // Calcular total de pontos
+        const totalPoints = players.reduce((sum, p) => sum + (p.points || 0), 0);
+        document.getElementById('total-pontos').querySelector('.text-success').textContent = totalPoints;
+
+        // Renderizar jogadores
+        const positionColors = {
+            'GOL': '#fbbf24',
+            'FIX': '#3b82f6',
+            'ALA': '#10b981',
+            'PIV': '#ef4444'
+        };
+
+        document.getElementById('meu-time').innerHTML = players.map(lp => {
+            const player = lp.players;
+            const points = lp.points || 0;
+            const color = positionColors[player.position] || '#6b7280';
+
+            return `
+                <div class="card text-center" style="padding: 1rem;">
+                    <div style="width: 60px; height: 60px; margin: 0 auto 0.75rem; border-radius: 50%; overflow: hidden; border: 3px solid ${color};">
+                        <img src="${player.photo_url || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Crect fill=\'%23ddd\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-size=\'40\' text-anchor=\'middle\' dy=\'.3em\'%3E👤%3C/text%3E%3C/svg%3E'}" 
+                             style="width: 100%; height: 100%; object-fit: cover;"
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'100\\'%3E%3Crect fill=\\'%23ddd\\'/%3E%3Ctext x=\\'50%25\\' y=\\'50%25\\' font-size=\\'40\\' text-anchor=\\'middle\\' dy=\\'.3em\\'%3E👤%3C/text%3E%3C/svg%3E'">
+                    </div>
+                    <div class="badge" style="background: ${color}; color: white; margin-bottom: 0.5rem;">${player.position}</div>
+                    <div class="font-semibold text-sm mb-1">${player.name}</div>
+                    <div class="text-xs text-gray mb-2">${player.teams?.name || 'Sem time'}</div>
+                    <div class="bg-gray-50 rounded p-2">
+                        <div class="text-xs text-gray">PONTOS</div>
+                        <div class="text-success font-bold" style="font-size: 1.5rem;">${points}</div>
+                    </div>
+                    <div class="text-xs text-gray mt-2">C$ ${player.price.toFixed(2)}</div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error('Erro ao carregar time:', error);
+        document.getElementById('meu-time').innerHTML = `
+            <div style="grid-column: 1 / -1;" class="text-center text-danger">
+                Erro ao carregar time
+            </div>
+        `;
+    }
+}
+
+// Carregar ranking
+async function loadRanking() {
+    try {
+        const { data: users } = await supabase
             .from('users')
             .select('id, team_name, total_points, cartoletas')
             .order('total_points', { ascending: false })
             .limit(20);
-        
-        if (error) throw error;
-        
-        const tbody = document.getElementById('ranking-tbody');
-        if (!tbody) return;
-        
-        if (!ranking || ranking.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                        <div class="flex flex-col items-center gap-2">
-                            <svg class="w-12 h-12 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                            </svg>
-                            <p>Nenhum time cadastrado ainda</p>
-                            <p class="text-xs">Seja o primeiro a pontuar na LNF Fantasy!</p>
-                        </div>
-                    </td>
-                </tr>
+
+        if (!users || users.length === 0) {
+            document.getElementById('ranking-tbody').innerHTML = `
+                <tr><td colspan="4" class="text-center text-gray">Nenhum time cadastrado</td></tr>
             `;
             return;
         }
-        
-        tbody.innerHTML = ranking.map((user, index) => {
-            const posicao = index + 1;
-            const isUsuarioAtual = user.id === usuarioLogado.id;
-            const destaque = isUsuarioAtual ? 'bg-blue-50 dark:bg-blue-900/30' : '';
-            
-            if (isUsuarioAtual) {
-                const elementPosition = document.getElementById('user-position');
-                if (elementPosition) {
-                    elementPosition.textContent = `${posicao}º`;
-                }
-            }
-            
-            let positionDisplay = `<span class="text-gray-600 dark:text-gray-400">${posicao}º</span>`;
-            if (posicao === 1) positionDisplay = '<span class="text-2xl">🥇</span>';
-            else if (posicao === 2) positionDisplay = '<span class="text-2xl">🥈</span>';
-            else if (posicao === 3) positionDisplay = '<span class="text-2xl">🥉</span>';
-            
-            return `
-                <tr class="${destaque} transition-colors hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <td class="px-4 py-3 whitespace-nowrap text-center">
-                        <span class="font-bold">${positionDisplay}</span>
-                    </td>
-                    <td class="px-4 py-3">
-                        <span class="font-semibold ${isUsuarioAtual ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-white'}">
-                            ${user.team_name}
-                            ${isUsuarioAtual ? '<span class="text-xs ml-1 bg-blue-100 dark:bg-blue-900 px-2 py-0.5 rounded">(Você)</span>' : ''}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3 text-center">
-                        <span class="font-bold text-green-600 dark:text-green-400">${user.total_points || 0}</span>
-                    </td>
-                    <td class="px-4 py-3 text-center text-gray-600 dark:text-gray-300">
-                        C$ ${parseFloat(user.cartoletas).toFixed(2)}
-                    </td>
-                </tr>
-            `;
-        }).join('');
-        
-        console.log('✅ Ranking carregado:', ranking.length, 'times');
-        
-    } catch (error) {
-        console.error('❌ Erro ao carregar ranking:', error);
+
         const tbody = document.getElementById('ranking-tbody');
-        if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" class="px-4 py-8 text-center text-red-500">
-                        <div class="flex flex-col items-center gap-2">
-                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <p>Erro ao carregar ranking</p>
-                        </div>
-                    </td>
+        tbody.innerHTML = users.map((user, index) => {
+            const position = index + 1;
+            const isCurrentUser = user.id === currentUser.id;
+            
+            // Atualizar posição do usuário
+            if (isCurrentUser) {
+                document.getElementById('user-position').textContent = `${position}º`;
+            }
+
+            let positionDisplay = `${position}º`;
+            if (position === 1) positionDisplay = '🥇';
+            else if (position === 2) positionDisplay = '🥈';
+            else if (position === 3) positionDisplay = '🥉';
+
+            const rowClass = isCurrentUser ? 'style="background: #fef3c7;"' : '';
+
+            return `
+                <tr ${rowClass}>
+                    <td class="text-center font-bold">${positionDisplay}</td>
+                    <td class="font-semibold">${user.team_name}${isCurrentUser ? ' <span class="badge badge-primary">Você</span>' : ''}</td>
+                    <td class="text-center text-success font-bold">${user.total_points || 0}</td>
+                    <td class="text-right text-gray">C$ ${user.cartoletas.toFixed(2)}</td>
                 </tr>
             `;
-        }
-    }
-}
-
-async function carregarHistorico() {
-    try {
-        console.log('📈 Carregando histórico...');
-        
-        const { data: escalacoes, error } = await supabase
-            .from('lineups')
-            .select(`
-                id,
-                round_id,
-                total_points,
-                created_at,
-                rounds (name, status)
-            `)
-            .eq('user_id', usuarioLogado.id)
-            .order('created_at', { ascending: false })
-            .limit(10);
-        
-        if (error) throw error;
-        
-        const container = document.getElementById('historico-lista');
-        if (!container) return;
-        
-        if (!escalacoes || escalacoes.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-12">
-                    <svg class="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                    <p class="text-gray-500 dark:text-gray-400 mb-2">📋 Você ainda não criou nenhuma escalação</p>
-                    <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">Monte seu time com os craques da LNF!</p>
-                    <a href="mercado.html" class="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-semibold">
-                        Escalar Time Agora
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </a>
-                </div>
-            `;
-            return;
-        }
-        
-        container.innerHTML = escalacoes.map(escalacao => {
-            const data = new Date(escalacao.created_at).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-            const rodadaNome = escalacao.rounds?.name || 'Rodada';
-            const status = escalacao.rounds?.status || 'pending';
-            
-            let statusBadge = '';
-            let statusIcon = '';
-            
-            if (status === 'active') {
-                statusBadge = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-                statusIcon = '⚡';
-            } else if (status === 'finished') {
-                statusBadge = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-                statusIcon = '✓';
-            } else if (status === 'pending') {
-                statusBadge = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-                statusIcon = '⏳';
-            }
-            
-            const statusTexto = {
-                'active': 'Em Andamento',
-                'finished': 'Finalizada',
-                'pending': 'Aguardando'
-            }[status] || 'Desconhecido';
-            
-            return `
-                <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1">
-                            <p class="font-semibold text-gray-900 dark:text-white">${rodadaNome}</p>
-                            <span class="text-xs ${statusBadge} px-2 py-1 rounded-full">${statusIcon} ${statusTexto}</span>
-                        </div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">${data}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400">${escalacao.total_points || 0}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">pontos</p>
-                    </div>
-                </div>
-            `;
         }).join('');
-        
-        console.log('✅ Histórico carregado:', escalacoes.length, 'escalações');
-        
+
     } catch (error) {
-        console.error('❌ Erro ao carregar histórico:', error);
-        const container = document.getElementById('historico-lista');
-        if (container) {
-            container.innerHTML = `
-                <div class="text-center py-12 text-red-500">
-                    <svg class="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <p>Erro ao carregar histórico</p>
-                </div>
-            `;
-        }
+        console.error('Erro ao carregar ranking:', error);
     }
 }
 
-// ============================================
-// UTILITÁRIOS
-// ============================================
-
-function atualizarElementos(selector, content) {
-    const elementos = document.querySelectorAll(selector);
-    elementos.forEach(el => {
-        el.textContent = content;
-    });
-}
-
-// ============================================
-// ATUALIZAÇÃO AUTOMÁTICA
-// ============================================
-
-function iniciarAtualizacaoAutomatica() {
-    intervaloAtualizacao = setInterval(() => {
-        if (usuarioLogado) {
-            console.log('🔄 Atualizando dados automaticamente...');
-            carregarRanking();
-            carregarDadosUsuario();
-        }
-    }, 30000);
-    
-    console.log('✅ Atualização automática iniciada (30s)');
-}
-
-function pararAtualizacaoAutomatica() {
-    if (intervaloAtualizacao) {
-        clearInterval(intervaloAtualizacao);
-        intervaloAtualizacao = null;
-        console.log('⏸️ Atualização automática parada');
+// Logout
+async function handleLogout() {
+    const result = await auth.logout();
+    if (result.success) {
+        window.location.href = 'index.html';
     }
 }
-
-window.addEventListener('beforeunload', () => {
-    pararAtualizacaoAutomatica();
-});
-
-// ============================================
-// EXPORTAÇÃO
-// ============================================
-
-window.dashboard = {
-    carregarTodosDados,
-    carregarDadosUsuario,
-    carregarRanking,
-    carregarHistorico,
-    iniciarAtualizacaoAutomatica,
-    pararAtualizacaoAutomatica
-};
-
-console.log('✅ Dashboard LNF Fantasy inicializado ⚽');

@@ -3,335 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#FF6B00">
     <title>Mercado - LNF Fantasy</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        .field-3d {
-            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #1a472a 100%);
-            position: relative;
-            border-radius: 16px;
-            overflow: hidden;
+        .market-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 1.5rem;
         }
-        
-        .field-lines::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: 
-                repeating-linear-gradient(0deg, transparent 0px, transparent 49px, rgba(255,255,255,0.15) 49px, rgba(255,255,255,0.15) 50px),
-                repeating-linear-gradient(90deg, transparent 0px, transparent 49px, rgba(255,255,255,0.15) 49px, rgba(255,255,255,0.15) 50px);
+
+        .player-card {
+            border: 1px solid var(--gray-200);
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            transition: all 0.15s;
         }
-        
-        .player-slot {
-            transition: all 0.3s ease;
-            cursor: pointer;
+
+        .player-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        
-        .player-slot:hover {
-            transform: scale(1.1) translateY(-5px);
-            z-index: 10;
+
+        .player-card.selected {
+            border-color: var(--success);
+            background: #d1fae5;
         }
-        
-        .player-avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: white;
-            border: 4px solid #fff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+
+        .field {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            min-height: 400px;
         }
-        
-        .player-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-        
-        .position-badge {
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #FF6B00;
+
+        .position-slot {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 0.375rem;
+            padding: 1rem;
+            text-align: center;
             color: white;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 2px 8px;
-            border-radius: 10px;
-            border: 2px solid white;
+            cursor: pointer;
+            transition: all 0.15s;
         }
-        
-        .valorization-up {
-            color: #10b981;
+
+        .position-slot:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
         }
-        
-        .valorization-down {
-            color: #ef4444;
+
+        .position-slot.filled {
+            background: white;
+            border-color: var(--success);
+            color: var(--gray-900);
+            cursor: default;
         }
-        
-        .player-row:hover {
-            background: rgba(255, 107, 0, 0.05);
+
+        .position-slot.filled:hover {
+            background: white;
         }
-        
-        .status-badge {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        
-        .status-provavel { background: #10b981; }
-        .status-duvida { background: #f59e0b; }
-        .status-contundido { background: #ef4444; }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .animate-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+        @media (max-width: 768px) {
+            .market-layout {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900">
-    
-    <!-- Header -->
-    <header class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50">
-        <div class="max-w-[1600px] mx-auto px-4 py-4">
-            <div class="flex justify-between items-center">
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="flex items-center justify-between py-4">
                 <div class="flex items-center gap-4">
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent">
-                        ⚽ LNF Fantasy
-                    </h1>
-                    <div class="hidden md:flex items-center gap-6 text-sm">
-                        <a href="dashboard.html" class="text-gray-600 dark:text-gray-300 hover:text-orange-600">Início</a>
-                        <a href="mercado.html" class="text-orange-600 font-bold border-b-2 border-orange-600 pb-1">Mercado</a>
-                        <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-orange-600">Escalação</a>
-                    </div>
+                    <h1 class="text-primary">⚽ LNF Fantasy</h1>
+                    <span id="market-status" class="badge badge-success">Carregando...</span>
                 </div>
-                
                 <div class="flex items-center gap-4">
-                    <div class="hidden md:block text-right">
-                        <div class="text-xs text-gray-500 dark:text-gray-400">Preço do Time</div>
-                        <div id="preco-time" class="text-2xl font-bold text-gray-900 dark:text-white">
-                            C$ 0.00
-                        </div>
-                    </div>
-                    <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">
-                        <span class="dark:hidden">🌙</span>
-                        <span class="hidden dark:inline">☀️</span>
-                    </button>
-                    <button onclick="logout()" class="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
-                    </button>
+                    <span id="team-cost" class="font-semibold text-sm">C$ 0.00</span>
+                    <a href="dashboard.html" class="btn btn-secondary">Dashboard</a>
+                    <button onclick="handleLogout()" class="btn btn-danger">Sair</button>
                 </div>
             </div>
         </div>
-    </header>
+    </nav>
 
-    <div class="max-w-[1600px] mx-auto px-4 py-6">
-        <div class="grid grid-cols-12 gap-6">
+    <!-- Conteúdo -->
+    <main class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
+        <div class="market-layout">
             
-            <!-- COLUNA ESQUERDA: SEU TIME -->
-            <div class="col-span-12 lg:col-span-3">
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sticky top-24">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            SEU TIME
-                        </h3>
-                        <button onclick="toggleView()" class="text-xs text-gray-500 hover:text-orange-600">
-                            <svg id="view-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                            </svg>
-                        </button>
+            <!-- Sidebar -->
+            <div>
+                <!-- Orçamento -->
+                <div class="card mb-6">
+                    <h3 class="mb-4 text-sm font-semibold">Orçamento</h3>
+                    <div class="mb-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray">Saldo:</span>
+                            <span id="balance" class="font-semibold">C$ 100.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray">Gasto:</span>
+                            <span id="spent" class="font-semibold text-danger">C$ 0.00</span>
+                        </div>
+                        <div class="flex justify-between mb-1" style="padding-top: 0.75rem; border-top: 1px solid var(--gray-200);">
+                            <span class="font-semibold">Restante:</span>
+                            <span id="remaining" class="font-bold text-success">C$ 100.00</span>
+                        </div>
                     </div>
+                </div>
 
-                    <!-- Campo Visual -->
-                    <div id="campo-view" class="field-3d field-lines p-6 min-h-[500px] relative">
-                        <!-- Goleiro -->
-                        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-                            <div id="slot-gol" class="player-slot" onclick="abrirMercado('GOL')">
-                                <div class="player-avatar">
-                                    <span class="text-3xl">🧤</span>
-                                    <div class="position-badge">GOL</div>
+                <!-- Escalação -->
+                <div class="card">
+                    <h3 class="mb-4 text-sm font-semibold">Sua Escalação</h3>
+                    <div id="lineup-count" class="text-sm text-gray mb-4">0/5 jogadores</div>
+                    
+                    <div class="field mb-4">
+                        <div class="mb-3">
+                            <div class="text-xs" style="color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">GOLEIRO</div>
+                            <div id="slot-gol" class="position-slot">
+                                <div class="text-xs">Vazio</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="text-xs" style="color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">FIXO</div>
+                            <div id="slot-fix" class="position-slot">
+                                <div class="text-xs">Vazio</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="text-xs" style="color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">ALAS</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div id="slot-ala1" class="position-slot">
+                                    <div class="text-xs">Vazio</div>
                                 </div>
-                                <div class="text-center mt-2">
-                                    <div class="text-xs text-white font-semibold bg-black/30 rounded px-2 py-1">Vazio</div>
+                                <div id="slot-ala2" class="position-slot">
+                                    <div class="text-xs">Vazio</div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Fixo -->
-                        <div class="absolute bottom-32 left-1/2 transform -translate-x-1/2">
-                            <div id="slot-fix" class="player-slot" onclick="abrirMercado('FIX')">
-                                <div class="player-avatar">
-                                    <span class="text-3xl">🛡️</span>
-                                    <div class="position-badge">FIX</div>
-                                </div>
-                                <div class="text-center mt-2">
-                                    <div class="text-xs text-white font-semibold bg-black/30 rounded px-2 py-1">Vazio</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Alas -->
-                        <div class="absolute bottom-56 left-1/4 transform -translate-x-1/2">
-                            <div id="slot-ala-1" class="player-slot" onclick="abrirMercado('ALA')">
-                                <div class="player-avatar">
-                                    <span class="text-3xl">🏃</span>
-                                    <div class="position-badge">ALA</div>
-                                </div>
-                                <div class="text-center mt-2">
-                                    <div class="text-xs text-white font-semibold bg-black/30 rounded px-2 py-1">Vazio</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="absolute bottom-56 right-1/4 transform translate-x-1/2">
-                            <div id="slot-ala-2" class="player-slot" onclick="abrirMercado('ALA')">
-                                <div class="player-avatar">
-                                    <span class="text-3xl">🏃</span>
-                                    <div class="position-badge">ALA</div>
-                                </div>
-                                <div class="text-center mt-2">
-                                    <div class="text-xs text-white font-semibold bg-black/30 rounded px-2 py-1">Vazio</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pivô -->
-                        <div class="absolute top-12 left-1/2 transform -translate-x-1/2">
-                            <div id="slot-piv" class="player-slot" onclick="abrirMercado('PIV')">
-                                <div class="player-avatar">
-                                    <span class="text-3xl">🎯</span>
-                                    <div class="position-badge">PIV</div>
-                                </div>
-                                <div class="text-center mt-2">
-                                    <div class="text-xs text-white font-semibold bg-black/30 rounded px-2 py-1">Vazio</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Círculo central -->
-                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 border-2 border-white/30 rounded-full"></div>
-                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white/50 rounded-full"></div>
-                    </div>
-
-                    <!-- Valorização -->
-                    <div class="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-400">Valorização (C$):</span>
-                            <div class="flex items-center gap-1">
-                                <span class="valorization-up">↑ Valorizando</span>
-                                <span class="valorization-down">↓ Desvalorizando</span>
+                        <div>
+                            <div class="text-xs" style="color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;">PIVÔ</div>
+                            <div id="slot-piv" class="position-slot">
+                                <div class="text-xs">Vazio</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Banco de Reservas -->
-                    <div class="mt-4">
-                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">BANCO DE RESERVAS</h4>
-                        <div class="grid grid-cols-5 gap-2">
-                            <div class="text-center">
-                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-1 flex items-center justify-center text-xs">
-                                    GOL
-                                </div>
-                            </div>
-                            <div class="text-center">
-                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-1 flex items-center justify-center text-xs">
-                                    LAT
-                                </div>
-                            </div>
-                            <div class="text-center">
-                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-1 flex items-center justify-center text-xs">
-                                    ZAG
-                                </div>
-                            </div>
-                            <div class="text-center">
-                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-1 flex items-center justify-center text-xs">
-                                    MEI
-                                </div>
-                            </div>
-                            <div class="text-center">
-                                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 mx-auto mb-1 flex items-center justify-center text-xs">
-                                    ATA
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Botões de Ação -->
-                    <div class="mt-4 space-y-2">
-                        <button onclick="salvarEscalacao()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-all">
-                            ✓ Salvar Time
-                        </button>
-                        <button onclick="limparEscalacao()" class="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 rounded-lg transition-all">
-                            🗑️ Limpar Escalação
-                        </button>
-                    </div>
+                    <button id="btn-save" onclick="saveLineup()" class="btn btn-success w-full mb-2">Salvar Escalação</button>
+                    <button onclick="clearLineup()" class="btn btn-danger w-full">Limpar Tudo</button>
                 </div>
             </div>
 
-            <!-- COLUNA CENTRAL: TABELA DE JOGADORES -->
-            <div class="col-span-12 lg:col-span-6">
-                <!-- Barra de Filtros -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 mb-4">
-                    <div class="flex items-center gap-3 flex-wrap">
-                        <button class="px-4 py-2 bg-orange-600 text-white rounded-lg font-semibold text-sm">
-                            ⚙️ FILTROS
-                        </button>
-                        <select id="filtro-posicao" class="px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
-                            <option value="">Todas as posições</option>
-                            <option value="GOL">Goleiro</option>
-                            <option value="FIX">Fixo</option>
-                            <option value="ALA">Ala</option>
-                            <option value="PIV">Pivô</option>
-                        </select>
-                        <input type="text" id="busca-jogador" placeholder="🔍 Nome do atleta" class="flex-1 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
+            <!-- Lista de Jogadores -->
+            <div>
+                <div class="card">
+                    <!-- Filtros -->
+                    <div class="grid md:grid-cols-3 gap-4 mb-6">
+                        <div>
+                            <label>Posição</label>
+                            <select id="filter-position" onchange="filterPlayers()">
+                                <option value="">Todas</option>
+                                <option value="GOL">Goleiro</option>
+                                <option value="FIX">Fixo</option>
+                                <option value="ALA">Ala</option>
+                                <option value="PIV">Pivô</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Time</label>
+                            <select id="filter-team" onchange="filterPlayers()">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Buscar</label>
+                            <input type="text" id="filter-search" oninput="filterPlayers()" placeholder="Nome do jogador...">
+                        </div>
                     </div>
-                </div>
 
-                <!-- Tabela de Jogadores -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead class="bg-gray-50 dark:bg-gray-900">
+                    <!-- Tabela de Jogadores -->
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Atleta</th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Status</th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
-                                        Preço
-                                    </th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Variação</th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Últ. ⚽</th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Média</th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Confronto</th>
-                                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase"></th>
+                                    <th style="width: 60px;"></th>
+                                    <th>JOGADOR</th>
+                                    <th>POSIÇÃO</th>
+                                    <th class="text-right">PREÇO</th>
+                                    <th class="text-center" style="width: 120px;">AÇÃO</th>
                                 </tr>
                             </thead>
-                            <tbody id="lista-jogadores" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tbody id="players-list">
                                 <tr>
-                                    <td colspan="8" class="px-4 py-12 text-center">
-                                        <div class="flex flex-col items-center gap-4">
-                                            <div class="animate-pulse">
-                                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                                                </svg>
-                                            </div>
-                                            <p class="text-gray-500 dark:text-gray-400">Carregando jogadores da LNF...</p>
-                                        </div>
+                                    <td colspan="5" class="text-center" style="padding: 2rem;">
+                                        <div class="spinner" style="margin: 0 auto;"></div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -339,87 +205,12 @@
                     </div>
                 </div>
             </div>
-
-            <!-- COLUNA DIREITA: INFORMAÇÕES E SALDO -->
-            <div class="col-span-12 lg:col-span-3">
-                <!-- Saldo -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 mb-4">
-                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">💰 ORÇAMENTO</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Saldo:</span>
-                            <span id="saldo-atual" class="text-xl font-bold text-green-600 dark:text-green-400">C$ 100.00</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Gasto:</span>
-                            <span id="valor-gasto" class="text-lg font-semibold text-red-600 dark:text-red-400">C$ 0.00</span>
-                        </div>
-                        <div class="border-t border-gray-200 dark:border-gray-700 pt-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Restante:</span>
-                                <span id="saldo-restante" class="text-2xl font-black text-blue-600 dark:text-blue-400">C$ 100.00</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Esquema Tático -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 mb-4">
-                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">📋 ESQUEMA TÁTICO</h3>
-                    <select class="w-full px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm">
-                        <option value="1-1-2-1">1-1-2-1 (Tradicional Futsal)</option>
-                    </select>
-                    <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                        <p class="text-xs text-blue-900 dark:text-blue-200">
-                            <strong>Futsal LNF:</strong> 1 Goleiro, 1 Fixo, 2 Alas, 1 Pivô
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Estatísticas Gerais -->
-                <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-4 text-white">
-                    <h3 class="text-sm font-bold mb-4">📊 ESTATÍSTICAS</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm">Jogadores escalados:</span>
-                            <span id="total-jogadores" class="text-2xl font-bold">0/5</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm">Posições faltando:</span>
-                            <span id="posicoes-faltando" class="text-lg font-semibold">5</span>
-                        </div>
-                        <div class="border-t border-white/30 pt-3">
-                            <div class="text-xs opacity-80">
-                                Complete sua escalação para poder salvar!
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Info da Rodada -->
-                <div class="mt-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
-                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">🏆 RODADA ATUAL</h3>
-                    <div id="info-rodada" class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400">Status:</span>
-                            <span class="text-green-600 dark:text-green-400 font-semibold">Mercado Aberto</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600 dark:text-gray-400">Próxima rodada:</span>
-                            <span class="font-semibold text-gray-900 dark:text-white">Rodada 1</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-    </div>
+    </main>
 
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/config.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/theme.js"></script>
     <script src="assets/js/auth.js"></script>
-    <script src="assets/js/mercado-cartola.js"></script>
+    <script src="assets/js/mercado.js"></script>
 </body>
 </html>
